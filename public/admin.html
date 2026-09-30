@@ -4,9 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard | Student Records</title>
+    
+    <!-- Tailwind CSS & Fonts -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- SheetJS for Excel Export -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    
     <style>
         body { font-family: 'Poppins', sans-serif; }
         .table-scroll::-webkit-scrollbar { height: 6px; }
@@ -16,6 +21,18 @@
         .glass-input { background: #f8fafc; border: 1px solid #e2e8f0; transition: all 0.3s ease; }
         .glass-input:focus { background: #ffffff; border-color: #6366f1; box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1); }
     </style>
+
+    <!-- Code Protection Script (Disables Right Click & Inspect Elements) -->
+    <script>
+        document.addEventListener('contextmenu', event => event.preventDefault());
+        document.onkeydown = function(e) {
+            if(e.keyCode == 123) return false; // F12
+            if(e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) return false; // Ctrl+Shift+I
+            if(e.ctrlKey && e.shiftKey && e.keyCode == 'C'.charCodeAt(0)) return false; // Ctrl+Shift+C
+            if(e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) return false; // Ctrl+Shift+J
+            if(e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) return false; // Ctrl+U
+        }
+    </script>
 </head>
 <body class="bg-slate-50 min-h-screen antialiased text-gray-800">
 
@@ -111,46 +128,63 @@
     <!-- ============================================================== -->
 
     <script>
-        // --- AUTHENTICATION LOGIC ---
-        const CORRECT_PIN = "Dhikrit2026"; // Change your admin password here
+        // --- AUTHENTICATION & DATABASE LOGIC ---
+        let activeSessionPin = ''; // Stores PIN temporarily while unlocked
 
         function handleKeyPress(e) {
             if (e.key === 'Enter') unlockDashboard();
         }
 
-        function unlockDashboard() {
+        async function unlockDashboard() {
             const inputPin = document.getElementById('adminPin').value;
             const errorMsg = document.getElementById('pinError');
             const lockScreen = document.getElementById('lockScreen');
             const mainDashboard = document.getElementById('mainDashboard');
+            
+            // Safe button selection that prevents the crash
+            const btn = document.querySelector('button[onclick="unlockDashboard()"]');
+            
+            const originalText = btn.innerHTML;
+            btn.innerHTML = 'Verifying...';
 
-            if (inputPin === CORRECT_PIN) {
-                // Success - hide error and animate screen out
-                errorMsg.classList.add('hidden');
-                lockScreen.classList.add('opacity-0', 'pointer-events-none');
-                
-                setTimeout(() => {
-                    lockScreen.classList.add('hidden');
-                    mainDashboard.classList.remove('hidden');
-                    // Slight delay for smooth fade-in
-                    setTimeout(() => mainDashboard.classList.remove('opacity-0'), 50);
+            try {
+                // Send PIN to backend for verification
+                const response = await fetch('/api/verify-pin', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ pin: inputPin })
+                });
+
+                if (response.ok) {
+                    // Success! Store pin temporarily and unlock UI
+                    activeSessionPin = inputPin;
+                    errorMsg.classList.add('hidden');
+                    lockScreen.classList.add('opacity-0', 'pointer-events-none');
                     
-                    // Fetch the records ONLY after successful login
-                    fetchRecords();
-                }, 500); // Wait for fade out transition
-            } else {
-                // Fail - show error and shake animation
+                    setTimeout(() => {
+                        lockScreen.classList.add('hidden');
+                        mainDashboard.classList.remove('hidden');
+                        setTimeout(() => mainDashboard.classList.remove('opacity-0'), 50);
+                        fetchRecords(); // Fetch secure data
+                    }, 500);
+                } else {
+                    throw new Error("Invalid PIN");
+                }
+            } catch (error) {
+                // Fail - show error animation
                 errorMsg.classList.remove('hidden');
                 document.getElementById('adminPin').value = '';
                 const card = document.getElementById('lockCard');
                 card.classList.add('translate-x-2');
                 setTimeout(() => card.classList.replace('translate-x-2', '-translate-x-2'), 100);
                 setTimeout(() => card.classList.replace('-translate-x-2', 'translate-x-0'), 200);
+            } finally {
+                if(btn) btn.innerHTML = originalText;
             }
         }
 
         function lockDashboard() {
-            // Reset state
+            activeSessionPin = ''; // Erase PIN from memory
             document.getElementById('adminPin').value = '';
             document.getElementById('studentTableBody').innerHTML = '<tr><td colspan="5" class="px-6 py-12 text-center text-slate-400">Authenticating database connection...</td></tr>';
             
@@ -165,16 +199,21 @@
             }, 500);
         }
 
-        // --- DATABASE LOGIC ---
         async function fetchRecords() {
             try {
-                const response = await fetch('/api/students');
+                // Send the secure PIN in the headers to get the data
+                const response = await fetch('/api/students', {
+                    headers: { 'x-admin-pin': activeSessionPin }
+                });
+                
+                if (!response.ok) throw new Error("Unauthorized");
+                
                 const students = await response.json();
                 const tbody = document.getElementById('studentTableBody');
                 tbody.innerHTML = ''; 
 
                 if (students.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-12 text-center text-slate-500">No student records found in the database.</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-12 text-center text-slate-500">No student records found.</td></tr>';
                     return;
                 }
 
@@ -196,11 +235,7 @@
                             <td class="px-6 py-4 whitespace-nowrap text-slate-700">${student.fathersName}</td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="text-slate-900 font-medium">${student.course}</div>
-                                <div class="text-xs text-slate-500 mt-0.5">
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-indigo-50 text-indigo-700 border border-indigo-100">
-                                        Sem ${student.semester}
-                                    </span>
-                                </div>
+                                <div class="text-xs text-slate-500 mt-0.5"><span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-indigo-50 text-indigo-700 border border-indigo-100">Sem ${student.semester}</span></div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="text-slate-700">${student.personalEmail}</div>
@@ -211,13 +246,14 @@
                     tbody.innerHTML += row;
                 });
             } catch (error) {
-                document.getElementById('studentTableBody').innerHTML = '<tr><td colspan="5" class="px-6 py-12 text-center text-red-500 bg-red-50">Error establishing database connection.</td></tr>';
+                document.getElementById('studentTableBody').innerHTML = '<tr><td colspan="5" class="px-6 py-12 text-center text-red-500 bg-red-50">Session expired or unauthorized. Please log in again.</td></tr>';
+                setTimeout(lockDashboard, 2000);
             }
         }
 
         // --- EXPORT LOGIC ---
         function exportToExcel() {
-            fetch('/api/students')
+            fetch('/api/students', { headers: { 'x-admin-pin': activeSessionPin } }) // Secure export
                 .then(res => res.json())
                 .then(data => {
                     const cleanData = data.map(s => ({
@@ -241,7 +277,8 @@
                     
                     const today = new Date().toISOString().split('T')[0];
                     XLSX.writeFile(workbook, `NIU_Student_Records_${today}.xlsx`);
-                });
+                })
+                .catch(err => alert("Export failed. Ensure you are logged in."));
         }
     </script>
 </body>
