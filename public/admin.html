@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | Student Records</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        body { font-family: 'Poppins', sans-serif; }
+        .table-scroll::-webkit-scrollbar { height: 6px; }
+        .table-scroll::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 4px; }
+        .table-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .table-scroll::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        .glass-input { background: #f8fafc; border: 1px solid #e2e8f0; transition: all 0.3s ease; }
+        .glass-input:focus { background: #ffffff; border-color: #6366f1; box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1); }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen antialiased text-gray-800">
+
+    <!-- ================= AUTHENTICATION LOCK SCREEN ================= -->
+    <div id="lockScreen" class="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-md flex items-center justify-center p-4 transition-opacity duration-500">
+        <div class="bg-white rounded-3xl shadow-2xl p-8 sm:p-10 max-w-md w-full border border-slate-100 text-center relative overflow-hidden transform transition-transform duration-500 scale-100" id="lockCard">
+            <!-- Decorative Top Gradient -->
+            <div class="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-indigo-600 to-blue-600"></div>
+            
+            <div class="mx-auto bg-indigo-50 w-16 h-16 rounded-full flex items-center justify-center mb-6 shadow-inner">
+                <svg class="w-8 h-8 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+            </div>
+            
+            <h2 class="text-2xl font-bold text-slate-800 mb-1">Admin Access</h2>
+            <p class="text-sm text-slate-500 mb-8">Enter the security PIN to view NIU student data.</p>
+            
+            <div class="space-y-4">
+                <div>
+                    <input type="password" id="adminPin" placeholder="Enter PIN" class="glass-input w-full rounded-xl p-3.5 text-center text-lg tracking-widest font-bold outline-none text-slate-700" onkeypress="handleKeyPress(event)">
+                </div>
+                <div id="pinError" class="hidden text-sm text-red-500 font-medium">Incorrect PIN. Please try again.</div>
+                
+                <button onclick="unlockDashboard()" class="w-full bg-slate-900 hover:bg-slate-800 text-white px-6 py-3.5 rounded-xl font-bold transition shadow-lg flex justify-center items-center">
+                    Unlock Dashboard
+                    <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                </button>
+                
+                <div class="mt-4 pt-4 border-t border-slate-100">
+                    <a href="/index.html" class="text-sm text-indigo-600 hover:text-indigo-800 font-medium">&larr; Return to Registration</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- ============================================================== -->
+
+    <!-- ================= MAIN DASHBOARD (HIDDEN BY DEFAULT) ================= -->
+    <div id="mainDashboard" class="hidden opacity-0 transition-opacity duration-700">
+        <!-- Top Navigation App Bar -->
+        <nav class="bg-white border-b border-slate-200 sticky top-0 z-40">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between h-16 items-center">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0 bg-gradient-to-r from-indigo-600 to-blue-600 p-2 rounded-lg text-white">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"></path></svg>
+                        </div>
+                        <span class="ml-3 font-bold text-lg sm:text-xl text-slate-800 tracking-tight">Dhikrit DataCenter</span>
+                    </div>
+                    <button onclick="lockDashboard()" class="text-sm font-medium text-red-500 hover:text-red-700 transition flex items-center bg-red-50 hover:bg-red-100 px-4 py-2 rounded-lg">
+                        <svg class="w-4 h-4 mr-1 sm:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                        <span class="hidden sm:inline">Lock Session</span>
+                        <span class="sm:hidden">Lock</span>
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Dashboard Area -->
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+                <div>
+                    <h1 class="text-2xl font-bold text-slate-800">Student Directory</h1>
+                    <p class="text-sm text-slate-500 mt-1">Manage and export IT department registration records.</p>
+                </div>
+                
+                <button onclick="exportToExcel()" class="w-full sm:w-auto flex justify-center items-center bg-emerald-500 hover:bg-emerald-600 text-white px-6 py-2.5 rounded-xl font-semibold transition shadow-lg shadow-emerald-200">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    Export Excel (.xlsx)
+                </button>
+            </div>
+            
+            <div class="bg-white rounded-2xl shadow-xl shadow-slate-200/50 border border-slate-100 overflow-hidden">
+                <div class="table-scroll overflow-x-auto">
+                    <table id="studentTable" class="min-w-full divide-y divide-slate-200 whitespace-nowrap">
+                        <thead class="bg-slate-50">
+                            <tr>
+                                <th class="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">No.</th>
+                                <th class="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Student Profile</th>
+                                <th class="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Father's Name</th>
+                                <th class="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Academics</th>
+                                <th class="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Contact Details</th>
+                            </tr>
+                        </thead>
+                        <tbody id="studentTableBody" class="bg-white divide-y divide-slate-100 text-sm">
+                            <tr>
+                                <td colspan="5" class="px-6 py-12 text-center text-slate-400">Authenticating database connection...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- ============================================================== -->
+
+    <script>
+        // --- AUTHENTICATION LOGIC ---
+        const CORRECT_PIN = "Dhikrit2026"; // Change your admin password here
+
+        function handleKeyPress(e) {
+            if (e.key === 'Enter') unlockDashboard();
+        }
+
+        function unlockDashboard() {
+            const inputPin = document.getElementById('adminPin').value;
+            const errorMsg = document.getElementById('pinError');
+            const lockScreen = document.getElementById('lockScreen');
+            const mainDashboard = document.getElementById('mainDashboard');
+
+            if (inputPin === CORRECT_PIN) {
+                // Success - hide error and animate screen out
+                errorMsg.classList.add('hidden');
+                lockScreen.classList.add('opacity-0', 'pointer-events-none');
+                
+                setTimeout(() => {
+                    lockScreen.classList.add('hidden');
+                    mainDashboard.classList.remove('hidden');
+                    // Slight delay for smooth fade-in
+                    setTimeout(() => mainDashboard.classList.remove('opacity-0'), 50);
+                    
+                    // Fetch the records ONLY after successful login
+                    fetchRecords();
+                }, 500); // Wait for fade out transition
+            } else {
+                // Fail - show error and shake animation
+                errorMsg.classList.remove('hidden');
+                document.getElementById('adminPin').value = '';
+                const card = document.getElementById('lockCard');
+                card.classList.add('translate-x-2');
+                setTimeout(() => card.classList.replace('translate-x-2', '-translate-x-2'), 100);
+                setTimeout(() => card.classList.replace('-translate-x-2', 'translate-x-0'), 200);
+            }
+        }
+
+        function lockDashboard() {
+            // Reset state
+            document.getElementById('adminPin').value = '';
+            document.getElementById('studentTableBody').innerHTML = '<tr><td colspan="5" class="px-6 py-12 text-center text-slate-400">Authenticating database connection...</td></tr>';
+            
+            const lockScreen = document.getElementById('lockScreen');
+            const mainDashboard = document.getElementById('mainDashboard');
+            
+            mainDashboard.classList.add('opacity-0');
+            setTimeout(() => {
+                mainDashboard.classList.add('hidden');
+                lockScreen.classList.remove('hidden');
+                setTimeout(() => lockScreen.classList.remove('opacity-0', 'pointer-events-none'), 50);
+            }, 500);
+        }
+
+        // --- DATABASE LOGIC ---
+        async function fetchRecords() {
+            try {
+                const response = await fetch('/api/students');
+                const students = await response.json();
+                const tbody = document.getElementById('studentTableBody');
+                tbody.innerHTML = ''; 
+
+                if (students.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-12 text-center text-slate-500">No student records found in the database.</td></tr>';
+                    return;
+                }
+
+                students.forEach(student => {
+                    const row = `
+                        <tr class="hover:bg-slate-50 transition-colors duration-200 group">
+                            <td class="px-6 py-4 whitespace-nowrap text-slate-500 font-medium">${student.serialNumber}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <div class="h-10 w-10 flex-shrink-0 rounded-full bg-gradient-to-br from-indigo-100 to-blue-100 flex items-center justify-center text-indigo-600 font-bold text-sm">
+                                        ${student.studentName.charAt(0).toUpperCase()}
+                                    </div>
+                                    <div class="ml-4">
+                                        <div class="font-semibold text-slate-900 group-hover:text-indigo-600 transition-colors">${student.studentName}</div>
+                                        <div class="text-xs text-slate-500">ERP: ${student.prfNo}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-slate-700">${student.fathersName}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-slate-900 font-medium">${student.course}</div>
+                                <div class="text-xs text-slate-500 mt-0.5">
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-indigo-50 text-indigo-700 border border-indigo-100">
+                                        Sem ${student.semester}
+                                    </span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-slate-700">${student.personalEmail}</div>
+                                <div class="text-xs text-slate-500 mt-1">${student.personalMobile}</div>
+                            </td>
+                        </tr>
+                    `;
+                    tbody.innerHTML += row;
+                });
+            } catch (error) {
+                document.getElementById('studentTableBody').innerHTML = '<tr><td colspan="5" class="px-6 py-12 text-center text-red-500 bg-red-50">Error establishing database connection.</td></tr>';
+            }
+        }
+
+        // --- EXPORT LOGIC ---
+        function exportToExcel() {
+            fetch('/api/students')
+                .then(res => res.json())
+                .then(data => {
+                    const cleanData = data.map(s => ({
+                        "S.No.": s.serialNumber,
+                        "Student Name": s.studentName,
+                        "Father's Name": s.fathersName,
+                        "PRF / ERP No.": s.prfNo,
+                        "Email ID": s.personalEmail,
+                        "Mobile No.": s.personalMobile,
+                        "Batch": s.batch,
+                        "Course": s.course,
+                        "School": s.school,
+                        "Program": s.program,
+                        "Semester": s.semester,
+                        "Registration Date": new Date(s.registrationDate).toLocaleDateString()
+                    }));
+
+                    const worksheet = XLSX.utils.json_to_sheet(cleanData);
+                    const workbook = XLSX.utils.book_new();
+                    XLSX.utils.book_append_sheet(workbook, worksheet, "NIU Students");
+                    
+                    const today = new Date().toISOString().split('T')[0];
+                    XLSX.writeFile(workbook, `NIU_Student_Records_${today}.xlsx`);
+                });
+        }
+    </script>
+</body>
+</html>

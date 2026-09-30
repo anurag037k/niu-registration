@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NIU Registration | Powered by Dhikrit</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Poppins', sans-serif; }
+        .glass-input { background: #f8fafc; border: 1px solid #e2e8f0; transition: all 0.3s ease; }
+        .glass-input:focus { background: #ffffff; border-color: #6366f1; box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1); }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen antialiased text-gray-800 selection:bg-indigo-100 selection:text-indigo-900">
+
+    <!-- Premium Mobile-Optimized Promo Banner -->
+    <div class="bg-gradient-to-r from-indigo-900 via-blue-900 to-indigo-900 text-white py-4 px-4 sm:px-6 shadow-lg relative overflow-hidden">
+        <div class="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
+        <div class="relative z-10 flex flex-col md:flex-row justify-between items-center max-w-5xl mx-auto">
+            <div class="text-center md:text-left mb-3 md:mb-0">
+                <h2 class="text-xl sm:text-2xl font-bold tracking-wide">Powered by</h2>
+                <img src="logo.png" class="inline-block w-60 h-20 ml-2" alt="Brain Icon"/>
+                <p class="text-xs sm:text-sm text-indigo-200 mt-1">Tech Education for Computer Science Students</p>
+            </div>
+            <div class="flex flex-wrap justify-center gap-2 text-xs font-medium">
+                <span class="bg-white/10 backdrop-blur-md border border-white/20 px-3 py-1.5 rounded-full">🔥 Quiz </span>
+                <span class="bg-white/10 backdrop-blur-md border border-white/20 px-3 py-1.5 rounded-full">📚 Roadmap</span>
+                <span class="bg-white/10 backdrop-blur-md border border-white/20 px-3 py-1.5 rounded-full">💻 Coding Challenges</span>
+            
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 py-8">
+        
+        <!-- Navigation -->
+        <div class="flex justify-end mb-4">
+            <a href="/admin.html" class="group flex items-center text-sm font-semibold text-indigo-600 hover:text-indigo-800 transition-colors">
+                Admin Portal 
+                <svg class="w-4 h-4 ml-1 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>
+            </a>
+        </div>
+
+        <!-- Form Card -->
+        <div class="bg-white rounded-2xl shadow-xl shadow-indigo-100/50 overflow-hidden border border-slate-100">
+            <!-- Card Header -->
+            <div class="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 sm:px-10 py-8 text-white relative">
+                <div class="absolute top-0 right-0 p-8 opacity-20">
+                    <svg class="w-24 h-24" fill="currentColor" viewBox="0 0 24 24"><path d="M12 14l9-5-9-5-9 5 9 5z"/><path d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"/></svg>
+                </div>
+                <h1 class="text-2xl sm:text-3xl font-bold relative z-10">Student Registration</h1>
+                <p class="text-sm sm:text-base mt-2 text-indigo-100 relative z-10">IT Department Information Collection Portal</p>
+            </div>
+
+            <!-- Form -->
+            <form id="registrationForm" class="p-6 sm:p-10 space-y-6">
+                <div id="alertMessage" class="hidden p-4 rounded-xl mb-6 text-sm font-medium transition-all duration-300"></div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">S.No.</label>
+                        <input type="text" id="serialNumber" required class="glass-input w-full rounded-xl p-3 sm:p-3.5 outline-none text-slate-700">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Student Name</label>
+                        <input type="text" id="studentName" required class="glass-input w-full rounded-xl p-3 sm:p-3.5 outline-none text-slate-700">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Father's Name</label>
+                        <input type="text" id="fathersName" required class="glass-input w-full rounded-xl p-3 sm:p-3.5 outline-none text-slate-700">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">PRF No. / ERP</label>
+                        <input type="text" id="prfNo" required class="glass-input w-full rounded-xl p-3 sm:p-3.5 outline-none text-slate-700">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Personal Email ID</label>
+                        <input type="email" id="personalEmail" required class="glass-input w-full rounded-xl p-3 sm:p-3.5 outline-none text-slate-700">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Personal Mobile No.</label>
+                        <input type="tel" id="personalMobile" required class="glass-input w-full rounded-xl p-3 sm:p-3.5 outline-none text-slate-700">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Batch</label>
+                        <input type="text" id="batch" placeholder="e.g. 2025-2028" required class="glass-input w-full rounded-xl p-3 sm:p-3.5 outline-none text-slate-700">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Course</label>
+                        <input type="text" id="course" placeholder="e.g. BCA" required class="glass-input w-full rounded-xl p-3 sm:p-3.5 outline-none text-slate-700">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">School</label>
+                        <input type="text" id="school" required class="glass-input w-full rounded-xl p-3 sm:p-3.5 outline-none text-slate-700">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Program</label>
+                        <input type="text" id="program" required class="glass-input w-full rounded-xl p-3 sm:p-3.5 outline-none text-slate-700">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Semester</label>
+                        <select id="semester" required class="glass-input w-full rounded-xl p-3 sm:p-3.5 outline-none text-slate-700 appearance-none cursor-pointer">
+                            <option value="" disabled selected>Select Current Semester</option>
+                            <option value="1">1st Semester</option>
+                            <option value="2">2nd Semester</option>
+                            <option value="3">3rd Semester</option>
+                            <option value="4">4th Semester</option>
+                            <option value="5">5th Semester</option>
+                            <option value="6">6th Semester</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mt-10 pt-6 border-t border-slate-100 flex flex-col sm:flex-row justify-end">
+                    <button type="submit" class="w-full sm:w-auto bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white px-10 py-4 rounded-xl font-bold shadow-lg shadow-indigo-200 transform transition hover:-translate-y-0.5">
+                        Submit Registration
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <footer
+    <button link="https://dhikrit.com" target="_blank" class="text-center text-xs text-slate-400 py-6">
+        &copy; 2026 Dhikrit. All rights reserved.
+    </footer>
+    <script>
+        document.getElementById('registrationForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button[type="submit"]');
+            btn.innerHTML = 'Submitting...'; btn.disabled = true;
+
+            const fields = ['serialNumber', 'studentName', 'fathersName', 'prfNo', 'personalEmail', 'personalMobile', 'batch', 'course', 'school', 'program', 'semester'];
+            const studentData = {};
+            fields.forEach(f => studentData[f] = document.getElementById(f).value);
+
+            const alertBox = document.getElementById('alertMessage');
+            try {
+                const res = await fetch('/api/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(studentData)
+                });
+                if(res.ok) {
+                    alertBox.innerHTML = "<span class='flex items-center'><svg class='w-5 h-5 mr-2' fill='currentColor' viewBox='0 0 20 20'><path fill-rule='evenodd' d='M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z' clip-rule='evenodd'/></svg> Registration successfully submitted!</span>";
+                    alertBox.className = "p-4 rounded-xl mb-6 text-sm font-medium bg-green-50 text-green-700 border border-green-200 block";
+                    document.getElementById('registrationForm').reset();
+                } else throw new Error("Failed");
+            } catch (err) {
+                alertBox.innerHTML = "<span class='flex items-center'><svg class='w-5 h-5 mr-2' fill='currentColor' viewBox='0 0 20 20'><path fill-rule='evenodd' d='M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z' clip-rule='evenodd'/></svg> Error submitting form. Please try again.</span>";
+                alertBox.className = "p-4 rounded-xl mb-6 text-sm font-medium bg-red-50 text-red-700 border border-red-200 block";
+            } finally {
+                btn.innerHTML = 'Submit Registration'; btn.disabled = false;
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        });
+    </script>
+</body>
+</html>
