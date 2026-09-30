@@ -12,9 +12,11 @@ const ADMIN_PIN = process.env.ADMIN_PIN || 'Dhikrit2026'; // Fallback pin
 app.use(cors());
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'public')));
+ // Change to Atlas URI for live
+   // Replace your current mongoose.connect block with this:
+const DB_URI = process.env.MONGODB_URI || 'mongodb+srv://dhikritofficial_db_user:pMglyipsCrUHfkPz@cluster0.c0ymhg2.mongodb.net/?appName=Cluster0&compressors=zlib';
 
-// MongoDB Connection
-mongoose.connect('mongodb+srv://dhikritofficial_db_user:pMglyipsCrUHfkPz@cluster0.c0ymhg2.mongodb.net/?appName=Cluster0&compressors=zlib') // Change to Atlas URI for live
+mongoose.connect(DB_URI)
     .then(() => console.log("MongoDB Connected Successfully"))
     .catch(err => console.error("MongoDB Connection Error:", err));
 
